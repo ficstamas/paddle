@@ -1,11 +1,19 @@
 import requests
 import os
-from typing import Optional, Literal, Callable
+from typing import Optional, Literal, Callable, NamedTuple, List
 import tqdm
 import zipfile
 import time
 import re
 from paddle.utils.network import download_url
+from dataclasses import dataclass
+
+
+@dataclass
+class Datasets:
+    train: List[List[str]]
+    test: List[List[str]]
+    dev: List[List[str]]
 
 
 __LANGUAGES = [
@@ -80,7 +88,7 @@ def clean_wikitext(name: Literal['wikitext2', 'wikitext103'], path: str):
         base_path = os.path.split(path)[0]
         folder = os.path.join(base_path, name)
 
-        regex = re.compile(r"^(= [^=]* =)$")  # detecting new document
+        regex = re.compile(r"^(= [^=;]* =)$")  # detecting new document (; is a table separator)
         regex_2 = re.compile(r" @.?@ ")  # to find splits of continuous tokens e.g. `10 @.@ 4` -> `10.4`
 
         for filename, part in [('train.txt', train_data.decode("utf8")),
@@ -93,7 +101,10 @@ def clean_wikitext(name: Literal['wikitext2', 'wikitext103'], path: str):
 
             lines = part.split('\n')
             print(f"Cleaning {name}:{filename} data...")
-            time.sleep(.2)  # :) just a lazy attempt to fix the stdout
+
+            # :) just a lazy attempt to fix the stdout,
+            # I know how I had to do it but I dont care honestly
+            time.sleep(.2)
 
             # Cleaning is a simple process
             # We are just removing the control bytes, potential spaces, and
@@ -150,7 +161,7 @@ def download(name: _RESOURCE_TYPES,
     """
     assert name in _URLS, f"The provided resource {name} is not available. Consider using the following alternatives: {', '.join(_URLS)}"
     assert retries >= 0, f"Number of retries should be at least 0, currently it's {retries}"
-    if not os.path.isdir(path):
+    if not os.path.isdir(path) and os.path.exists(path):
         path = os.path.split(path)[0]
 
     if not os.path.exists(path):
@@ -210,13 +221,49 @@ def preprocess_resource(name: _RESOURCE_TYPES,
 
 
 def load_dataset(name: _RESOURCE_TYPES,
-                 path: Optional[str]):
+                 path: Optional[str],
+                 download_if_necessary: Optional[bool] = True) -> Datasets:
     """
     Loads dataset
 
     :param name: Name of the resource specified in _URLS dict
-    :param path: Destination
-    :return:
+    :param path: Path to the resource folder
+    :param download_if_necessary: Downloads the dataset if it can not find it in the provided location
+    :return: Returns a namedtuple with train, dev and test attributes. Each subset consists of lists of documents
+    which has been split into lines
     """
     if name == 'wikidump':
         raise NotImplementedError()
+    if os.path.isfile(path):
+        path, _ = os.path.split(path)
+
+    files = {'train.txt': [], 'valid.txt': [], 'test.txt': []}
+    try:
+        for file in files:
+            if not os.path.exists(os.path.join(path, file)):
+                raise FileNotFoundError()
+    except FileNotFoundError:
+        path = os.path.join(path, name)
+        for file in files:
+            if not os.path.exists(os.path.join(path, file)):
+                if not download_if_necessary:
+                    raise FileNotFoundError(f"We can not find the train, validation and test files in "
+                                            f"{os.path.split(path)[0]} or {path}. Provide an alternative path, "
+                                            f"or set download_if_necessary=True")
+                else:
+                    preprocess_resource(name, os.path.split(path)[0])
+
+    for part, file in zip([path, ] * 3, files.keys()):
+        with open(os.path.join(part, file), mode='r', encoding='utf8') as f:
+            lines = f.readlines()[1:]
+            document = []
+            for line in tqdm.tqdm(lines, desc=file):
+                line = line.rstrip('\n\r')
+                if len(line) == 0:
+                    files[file].append(document)
+                    document = []
+                    continue
+                document.append(line)
+
+    return Datasets(train=files['train.txt'], dev=files['valid.txt'], test=files['test.txt'])
+

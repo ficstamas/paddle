@@ -228,8 +228,8 @@ def load_dataset(name: _RESOURCE_TYPES,
 
     :param name: Name of the resource specified in _URLS dict
     :param path: Path to the resource folder
-    :param download_if_necessary: Downloads the dataset if it can not find it in the provided location
-    :return: Returns a namedtuple with train, dev and test attributes. Each subset consists of lists of documents
+    :param download_if_necessary: Downloads the dataset if it can not found in the provided location
+    :return: Returns an object with train, dev and test attributes. Each subset consists of lists of documents
     which has been split into lines
     """
     if name == 'wikidump':

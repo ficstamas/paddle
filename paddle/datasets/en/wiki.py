@@ -6,14 +6,7 @@ import zipfile
 import time
 import re
 from paddle.utils.network import download_url
-from dataclasses import dataclass
-
-
-@dataclass
-class Datasets:
-    train: List[List[str]]
-    test: List[List[str]]
-    dev: List[List[str]]
+from paddle.datasets.dataclasses import DataSplits
 
 
 __LANGUAGES = [
@@ -222,7 +215,7 @@ def preprocess_resource(name: _RESOURCE_TYPES,
 
 def load_dataset(name: _RESOURCE_TYPES,
                  path: Optional[str],
-                 download_if_necessary: Optional[bool] = True) -> Datasets:
+                 download_if_necessary: Optional[bool] = True) -> DataSplits:
     """
     Loads dataset
 
@@ -265,5 +258,5 @@ def load_dataset(name: _RESOURCE_TYPES,
                     continue
                 document.append(line)
 
-    return Datasets(train=files['train.txt'], dev=files['valid.txt'], test=files['test.txt'])
+    return DataSplits(train=files['train.txt'], dev=files['valid.txt'], test=files['test.txt'])
 

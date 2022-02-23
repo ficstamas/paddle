@@ -3,6 +3,7 @@ from paddle.utils.network import get_url_paths, download_url
 import re
 import os
 import tqdm
+from paddle.datasets.dataclasses import DataSplits
 
 
 _RESOURCE_URL = 'https://nessie.ilab.sztaki.hu/~ndavid/Webcorpus2_text/'
@@ -43,7 +44,7 @@ def download(path: Optional[str],
 
 def load_dataset(path: Optional[str],
                  download_if_necessary: Optional[bool] = True,
-                 regex: Optional[str] = None) -> List[List[str]]:
+                 regex: Optional[str] = None) -> DataSplits:
     """
     Loads dataset
 
@@ -64,4 +65,4 @@ def load_dataset(path: Optional[str],
             lines = f.readlines()
             output.append([l.strip('\n') for l in lines if len(l.strip('\n')) > 0])
 
-    return output
+    return DataSplits(train=output, test=None, dev=None)

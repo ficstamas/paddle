@@ -65,8 +65,6 @@ def load_dataset(path: Optional[str],
     if download_if_necessary:
         path = download(path, regex=regex)
 
-    output = []
-
     with zipfile.ZipFile(path) as f:
         f: zipfile.ZipFile
         path, filename = os.path.split(path)
@@ -76,7 +74,7 @@ def load_dataset(path: Optional[str],
 
     file = [file for file in os.listdir(save_folder) if file.endswith(".csv")][0]
 
-    df = pd.read_csv(os.path.join(save_folder, file), encoding='iso-8859-2')
+    df = pd.read_csv(os.path.join(save_folder, file), encoding='iso-8859-2', index_col='ID')
 
     if data_split is None:
         return DataSplitsOpinHuBank(train=df, test=None, dev=None)

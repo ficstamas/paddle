@@ -24,7 +24,7 @@ def download(path: Optional[str],
     :param regex: Downloads files which match the provided regex e.g. 'wiki*'
     :return: Path to the resource, or None
     """
-    print(_CITATION)
+    print("Dataset: ", _CITATION)
     paths = get_url_paths(_RESOURCE_URL, ext='txt.gz')
     if regex is not None:
         regex = re.compile(regex)

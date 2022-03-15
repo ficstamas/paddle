@@ -1,6 +1,6 @@
 import requests
 import os
-from typing import Optional, List
+from typing import Optional, List, Literal
 import tqdm
 import requests
 from bs4 import BeautifulSoup
@@ -10,7 +10,9 @@ def download_url(url: Optional[str],
                  output: Optional[str],
                  retries: Optional[int] = 5,
                  verify_ssl: Optional[bool] = True,
-                 tqdm_params: Optional[dict] = None) -> Optional[str]:
+                 tqdm_params: Optional[dict] = None,
+                 method: Literal["get", "post"] = "get",
+                 request_params: Optional[dict] = None) -> Optional[str]:
     """
     Downloads file from the specified URL to the output folder
 
@@ -19,19 +21,28 @@ def download_url(url: Optional[str],
     :param retries: Maximum number of retries to acquire the resource
     :param verify_ssl: Verify SSL certificates
     :param tqdm_params: Parameters for tqdm customization
+    :param method: Method to retrieve the resource
+    :param request_params: Parameters for the request
     :return: Path to the resource, or None
     """
 
     path, filename = os.path.split(output)
-    os.makedirs(path, exist_ok=True)
+    if len(path) != 0:
+        os.makedirs(path, exist_ok=True)
 
     if tqdm_params is None:
         tqdm_params = {}
 
+    if request_params is None:
+        request_params = {}
+
     while retries + 1 > 0:
         try:
             print(f'Downloading {filename} from {url} ...')
-            resp = requests.get(url, stream=True, verify=verify_ssl)
+            if method == "get":
+                resp = requests.get(url, params=request_params, stream=True, verify=verify_ssl)
+            else:
+                resp = requests.post(url, data=request_params, stream=True, verify=verify_ssl)
             if resp.status_code != 200:
                 raise RuntimeError(f'Failed downloading url {url}')
 

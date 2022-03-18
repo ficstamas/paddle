@@ -5,6 +5,7 @@ on: [push]
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    environment: pypi_test_api
     strategy:
       max-parallel: 5
 

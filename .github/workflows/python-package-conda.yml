@@ -19,9 +19,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install setuptools wheel
         python -m pip install --upgrade build
-    - name: Check package can be built and pip install-ed
-      uses: CasperWA/check-sdist-action@v1
-    - name: Building
+    - name: Building ...
       run: |
         python -m build
     - name: Publish distribution 📦 to Test PyPI

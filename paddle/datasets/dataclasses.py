@@ -15,3 +15,17 @@ class DataSplitsOpinHuBank:
     train: Optional[DataFrame]
     test: Optional[DataFrame]
     dev: Optional[DataFrame]
+
+
+@dataclass
+class NYTKNerKor:
+    genre: str
+    morph: bool
+    data: Optional[DataFrame]
+
+
+@dataclass
+class DataSplitsNYTKNerKor:
+    train: Optional[List[NYTKNerKor]]
+    test: Optional[List[NYTKNerKor]]
+    dev: Optional[List[NYTKNerKor]]

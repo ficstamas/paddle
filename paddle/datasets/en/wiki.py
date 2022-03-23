@@ -1,6 +1,5 @@
-import requests
 import os
-from typing import Optional, Literal, Callable, NamedTuple, List
+from typing import Optional, Literal, Callable
 import tqdm
 import zipfile
 import time
@@ -140,9 +139,9 @@ _RESOURCE_TYPES = Literal['wikitext2', 'wikitext103', 'wikidump']
 
 
 def download(name: _RESOURCE_TYPES,
-             path: Optional[str],
-             retries: Optional[int] = 5,
-             verify_ssl: Optional[bool] = True) -> Optional[str]:
+             path: str,
+             retries: int = 5,
+             verify_ssl: bool = True) -> Optional[str]:
     """
     Downloads Resource
 
@@ -169,11 +168,11 @@ def download(name: _RESOURCE_TYPES,
     return file
 
 
-def download_wikidump(path: Optional[str],
-                      lang: Optional[str],
-                      date: Optional[str],
-                      retries: Optional[int] = 5,
-                      verify_ssl: Optional[bool] = True) -> Optional[str]:
+def download_wikidump(path: str,
+                      lang: str,
+                      date: str,
+                      retries: int = 5,
+                      verify_ssl: bool = True) -> Optional[str]:
     """
     Downloads wikipedia dump to location
 
@@ -198,7 +197,7 @@ def download_wikidump(path: Optional[str],
 
 
 def preprocess_resource(name: _RESOURCE_TYPES,
-                        path: Optional[str]):
+                        path: str):
     """
     Cleans and preprocesses data
 
@@ -214,8 +213,8 @@ def preprocess_resource(name: _RESOURCE_TYPES,
 
 
 def load_dataset(name: _RESOURCE_TYPES,
-                 path: Optional[str],
-                 download_if_necessary: Optional[bool] = True) -> DataSplits:
+                 path: str,
+                 download_if_necessary: bool = True) -> DataSplits:
     """
     Loads dataset
 

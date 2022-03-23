@@ -11,9 +11,9 @@ _CITATION = 'Nemeskey, Dávid Márk (2020). “Natural Language Processing metho
             'PhD thesis. Eötvös Loránd University.'
 
 
-def download(path: Optional[str],
-             retries: Optional[int] = 5,
-             verify_ssl: Optional[bool] = True,
+def download(path: str,
+             retries: int = 5,
+             verify_ssl: bool = True,
              regex: Optional[str] = None) -> Optional[List]:
     """
     Downloads Resource
@@ -42,8 +42,8 @@ def download(path: Optional[str],
     return output
 
 
-def load_dataset(path: Optional[str],
-                 download_if_necessary: Optional[bool] = True,
+def load_dataset(path: str,
+                 download_if_necessary: bool = True,
                  regex: Optional[str] = None) -> DataSplits:
     """
     Loads dataset

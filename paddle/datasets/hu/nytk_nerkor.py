@@ -46,17 +46,15 @@ _LEVELS = {
 }
 
 
-def download(path: Optional[str],
-             retries: Optional[int] = 5,
-             verify_ssl: Optional[bool] = True,
-             regex: Optional[str] = None) -> Optional[str]:
+def download(path: str,
+             retries: int = 5,
+             verify_ssl: bool = True) -> Optional[str]:
     """
     Downloads Resource
 
     :param path: Destination
     :param retries: Maximum number of retries to acquire the resource
     :param verify_ssl: Verify SSL certificates
-    :param regex: NOT USED
     :return: Path to the resource, or None
     """
     print("Dataset: ", _CITATION)
@@ -92,7 +90,7 @@ def parse_predetermined_files(path: str) -> pd.DataFrame:
 def load_dataset(path: str,
                  genre: Literal["all", "fiction", "legal", "news", "web", "wikipedia"] = "all",
                  morph: Optional[bool] = None,
-                 download_if_necessary: Optional[bool] = True,
+                 download_if_necessary: bool = True,
                  data_split: Optional[list] = (0.7, 0.1, 0.2),
                  split_method: Literal["doc", "sent", "token"] = "doc",
                  predetermined_splits: bool = False,

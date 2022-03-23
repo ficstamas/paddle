@@ -12,17 +12,15 @@ _CITATION = 'Miháltz, Márton (2013). “OpinHuBank: szabadon hozzáférhető a
             'Tanács Attila, Vincze Veronika (szerk.): IX. Magyar Számítógépes Nyelvészeti Konferencia (MSZNY 2013), SZTE, Szeged, 2013, pp. 343-345.'
 
 
-def download(path: Optional[str],
-             retries: Optional[int] = 5,
-             verify_ssl: Optional[bool] = True,
-             regex: Optional[str] = None) -> Optional[str]:
+def download(path: str,
+             retries: int = 5,
+             verify_ssl: bool = True) -> Optional[str]:
     """
     Downloads Resource
 
     :param path: Destination
     :param retries: Maximum number of retries to acquire the resource
     :param verify_ssl: Verify SSL certificates
-    :param regex: NOT USED
     :return: Path to the resource, or None
     """
     print("Dataset: ", _CITATION)
@@ -43,9 +41,8 @@ def download(path: Optional[str],
     return file
 
 
-def load_dataset(path: Optional[str],
-                 download_if_necessary: Optional[bool] = True,
-                 regex: Optional[str] = None,
+def load_dataset(path: str,
+                 download_if_necessary: bool = True,
                  data_split: Optional[list] = (0.7, 0.1, 0.2),
                  random_state: Optional[int] = 42) -> DataSplitsOpinHuBank:
     """
@@ -53,7 +50,6 @@ def load_dataset(path: Optional[str],
 
     :param path: Path to the resource folder
     :param download_if_necessary: Downloads the dataset if it can not found in the provided location
-    :param regex: NOT USED
     :param data_split: size of the splits [train, dev, test], if None everything is going to be in the train split
     :param random_state: random state to use for the splits
     :return: Returns the lists of documents which has been split into lines
@@ -63,7 +59,7 @@ def load_dataset(path: Optional[str],
         raise ValueError("data_split must sum to 1")
 
     if download_if_necessary:
-        path = download(path, regex=regex)
+        path = download(path)
 
     with zipfile.ZipFile(path) as f:
         f: zipfile.ZipFile

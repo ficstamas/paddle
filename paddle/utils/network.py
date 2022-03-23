@@ -6,10 +6,10 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def download_url(url: Optional[str],
-                 output: Optional[str],
-                 retries: Optional[int] = 5,
-                 verify_ssl: Optional[bool] = True,
+def download_url(url: str,
+                 output: str,
+                 retries: int = 5,
+                 verify_ssl: bool = True,
                  tqdm_params: Optional[dict] = None,
                  method: Literal["get", "post"] = "get",
                  request_params: Optional[dict] = None) -> Optional[str]:

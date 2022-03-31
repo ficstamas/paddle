@@ -14,3 +14,4 @@ tqdm==4.62.3
 urllib3==1.26.8
 wincertstore==0.2
 torch>=1.10.0
+transformers>=4.0.0

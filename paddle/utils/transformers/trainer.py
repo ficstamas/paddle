@@ -1,4 +1,4 @@
-from transformers.trainer import Trainer, IntervalStrategy
+from transformers import IntervalStrategy, Trainer
 from transformers.integrations import TensorBoardCallback
 
 

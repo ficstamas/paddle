@@ -1,4 +1,5 @@
 import torch
+from typing import Tuple
 
 
 def _getknn_pt(sc, x, y, top_k):
@@ -50,7 +51,7 @@ def _calculate_rcsls_pt(R, src, tgt, spectral, batchsize=0, niter=10, knn=10, ma
 
 def rcsls(src: torch.Tensor, tgt: torch.Tensor, spectral: bool = False, batchsize: int = 5000, maxneg: int = 100000,
           niter: int = 20, seed: int = 42, lr_init: float = 1.0, lr_stop: float = 1e-4, verbose: bool = False)\
-        -> torch.Tensor:
+        -> Tuple[torch.Tensor, float]:
     """
     Applies the RCSLS algorithm to learn a mapping from the source representation to the target. The learning rate is
     going to be halved with every iteration
@@ -72,4 +73,4 @@ def rcsls(src: torch.Tensor, tgt: torch.Tensor, spectral: bool = False, batchsiz
     U, _, V = torch.linalg.svd(tgt.T @ src)
     f, target_trafo = _calculate_rcsls_pt(U @ V, src, tgt, spectral=spectral, batchsize=batchsize, maxneg=maxneg,
                                           niter=niter, verbose=verbose, seed=seed, lr=lr_init, lr_stop=lr_stop)
-    return target_trafo
+    return target_trafo, f

@@ -65,7 +65,7 @@ def rcsls(src: torch.Tensor, tgt: torch.Tensor, spectral: bool = False, batchsiz
     :param lr_init: Starting Learning Rate
     :param lr_stop: Stopping Learning Rate
     :param verbose: Print state
-    :return: Transformation matrix
+    :return: Transformation matrix, rcsls error
     """
     src = torch.nn.functional.normalize(src)
     tgt = torch.nn.functional.normalize(tgt)

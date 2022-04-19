@@ -96,7 +96,9 @@ def load_dataset(path: str,
     if polar_opinions_only:
         filter_ = df == 1
         df = df.drop(df[filter_].index)
-        
+        filter_ = df == 2
+        df[filter_] = 1
+
     if data_split is None:
         return DataSplitsOpinHuBank(train=df, test=None, dev=None)
 

@@ -94,10 +94,10 @@ def load_dataset(path: str,
     df = _aggregate_labels(df)
 
     if polar_opinions_only:
-        filter_ = df == 1
+        filter_ = df.labels == 1
         df = df.drop(df[filter_].index)
-        filter_ = df == 2
-        df[filter_] = 1
+        filter_ = df.labels == 2
+        df.labels[filter_] = 1
 
     if data_split is None:
         return DataSplitsOpinHuBank(train=df, test=None, dev=None)

@@ -1,10 +1,10 @@
-from typing import Optional, List
+from typing import Optional, List, Union, Callable
 from paddle.utils.network import get_url_paths, download_url
 import re
 import os
 import tqdm
 from paddle.datasets.dataclasses import DataSplits
-from datasets import IterableDataset, IterableDatasetDict
+from datasets import IterableDataset
 from datasets.iterable_dataset import ExamplesIterable, _BaseExamplesIterable
 from paddle.datasets.utils.datasets import ChainDataset
 import numpy as np
@@ -115,6 +115,8 @@ class WebcorpusIterableDataset(TorchIterableDataset):
         self.generator = np.random.default_rng(seed=seed)
         self.infinite = infinite
         self.shuffle_every_cycle = shuffle_every_cycle
+        self.dataset: Optional[IterableDataset] = None
+        self.map_params = {}
 
     def __iter__(self):
         worker_info = torch.utils.data.get_worker_info()
@@ -126,7 +128,26 @@ class WebcorpusIterableDataset(TorchIterableDataset):
             worker_id = worker_info.id
             documents = [doc for i, doc in enumerate(self.ex_iterators) if i % num_workers == worker_id]
         chain = ChainDataset(documents, self.infinite, self.shuffle_every_cycle, self.generator)
-        return iter(chain)
+        self.dataset = IterableDataset(chain)
+        self.dataset.map(**self.map_params)
+        return iter(self.dataset)
+
+    def map(self,
+            function: Optional[Callable] = None,
+            with_indices: bool = False,
+            input_columns: Optional[Union[str, List[str]]] = None,
+            batched: bool = False,
+            batch_size: int = 1000,
+            remove_columns: Optional[Union[str, List[str]]] = None,
+            ):
+        self.map_params = {
+            "function": function,
+            "with_indices": with_indices,
+            "input_columns": input_columns,
+            "batched": batched,
+            "batch_size": batch_size,
+            "remove_columns": remove_columns,
+        }
 
 
 def load_iterable_dataset(path: str,

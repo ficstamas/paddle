@@ -129,7 +129,7 @@ class WebcorpusIterableDataset(TorchIterableDataset):
             documents = [doc for i, doc in enumerate(self.ex_iterators) if i % num_workers == worker_id]
         chain = ChainDataset(documents, self.infinite, self.shuffle_every_cycle, self.generator)
         self.dataset = IterableDataset(chain)
-        self.dataset.map(**self.map_params)
+        self.dataset = self.dataset.map(**self.map_params)
         return iter(self.dataset)
 
     def map(self,

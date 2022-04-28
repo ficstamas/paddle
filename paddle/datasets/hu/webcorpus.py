@@ -4,7 +4,7 @@ import re
 import os
 import tqdm
 from paddle.datasets.dataclasses import DataSplits
-from datasets import IterableDataset
+from datasets import IterableDataset, IterableDatasetDict
 from datasets.iterable_dataset import ExamplesIterable
 from paddle.datasets.utils.datasets import ChainDataset
 import numpy as np
@@ -104,7 +104,7 @@ def load_iterable_dataset(path: str,
                           regex: Optional[str] = None,
                           infinite: bool = False,
                           shuffle_every_cycle: bool = False,
-                          seed: int = 0):
+                          seed: int = 0) -> IterableDatasetDict:
     """
     Loads dataset
     :param path: Path to the resource folder
@@ -124,4 +124,6 @@ def load_iterable_dataset(path: str,
 
     files = [ExamplesIterable(_generate_lines, {'file': f}) for f in paths]
     chain = ChainDataset(files, infinite, shuffle_every_cycle, generator)
-    return IterableDataset(chain)
+    return IterableDatasetDict({
+        "train": IterableDataset(chain)
+    })

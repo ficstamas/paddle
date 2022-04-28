@@ -133,21 +133,14 @@ class WebcorpusIterableDataset(TorchIterableDataset):
         return iter(self.dataset)
 
     def map(self,
-            function: Optional[Callable] = None,
-            with_indices: bool = False,
-            input_columns: Optional[Union[str, List[str]]] = None,
-            batched: bool = False,
-            batch_size: int = 1000,
-            remove_columns: Optional[Union[str, List[str]]] = None,
+            function: Callable, batched: bool = False, batch_size: int = 1000
             ):
         self.map_params = {
             "function": function,
-            "with_indices": with_indices,
-            "input_columns": input_columns,
             "batched": batched,
-            "batch_size": batch_size,
-            "remove_columns": remove_columns,
+            "batch_size": batch_size
         }
+        return self
 
 
 def load_iterable_dataset(path: str,

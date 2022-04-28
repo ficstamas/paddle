@@ -5,11 +5,13 @@ import os
 import tqdm
 from paddle.datasets.dataclasses import DataSplits
 from datasets import IterableDataset, IterableDatasetDict
-from datasets.iterable_dataset import ExamplesIterable
+from datasets.iterable_dataset import ExamplesIterable, _BaseExamplesIterable
 from paddle.datasets.utils.datasets import ChainDataset
 import numpy as np
 from paddle.utils.files import is_gz_file
 from gzip import GzipFile
+from torch.utils.data import IterableDataset as TorchIterableDataset
+import torch
 
 
 _RESOURCE_URL = 'https://nessie.ilab.sztaki.hu/~ndavid/Webcorpus2_text/'
@@ -99,12 +101,40 @@ def _generate_lines(file: str):
                     doc_id += 1
 
 
+class WebcorpusIterableDataset(TorchIterableDataset):
+    def __init__(self, ex_iterators: List[_BaseExamplesIterable], infinite: bool, shuffle_every_cycle: bool,
+                 seed: int = 42):
+        """
+
+        :param ex_iterators:
+        :param infinite: whether to cycle all datasets infinitely
+        :param shuffle_every_cycle: whether to shuffle the order of documents every cycle (if `infinite` is True)
+        :param seed: Random seed to shuffle documents
+        """
+        self.ex_iterators = ex_iterators
+        self.generator = np.random.default_rng(seed=seed)
+        self.infinite = infinite
+        self.shuffle_every_cycle = shuffle_every_cycle
+
+    def __iter__(self):
+        worker_info = torch.utils.data.get_worker_info()
+        self.generator.shuffle(self.ex_iterators)
+        if worker_info is None:
+            documents = self.ex_iterators
+        else:
+            num_workers = worker_info.num_workers
+            worker_id = worker_info.id
+            documents = [doc for i, doc in enumerate(self.ex_iterators) if i % num_workers == worker_id]
+        chain = ChainDataset(documents, self.infinite, self.shuffle_every_cycle, self.generator)
+        return iter(chain)
+
+
 def load_iterable_dataset(path: str,
                           download_if_necessary: bool = True,
                           regex: Optional[str] = None,
                           infinite: bool = False,
                           shuffle_every_cycle: bool = False,
-                          seed: int = 0) -> IterableDatasetDict:
+                          seed: int = 0) -> WebcorpusIterableDataset:
     """
     Loads dataset
     :param path: Path to the resource folder
@@ -120,10 +150,6 @@ def load_iterable_dataset(path: str,
     else:
         paths = os.listdir(path)
 
-    generator = np.random.default_rng(seed=seed)
-
     files = [ExamplesIterable(_generate_lines, {'file': f}) for f in paths]
-    chain = ChainDataset(files, infinite, shuffle_every_cycle, generator)
-    return IterableDatasetDict({
-        "train": IterableDataset(chain)
-    })
+    iterator = WebcorpusIterableDataset(files, infinite, shuffle_every_cycle, seed)
+    return iterator

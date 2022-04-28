@@ -2,6 +2,7 @@ from datasets.iterable_dataset import _BaseExamplesIterable
 import numpy as np
 from typing import List
 from copy import deepcopy
+from random import shuffle
 
 
 class ChainDataset(_BaseExamplesIterable):
@@ -16,8 +17,8 @@ class ChainDataset(_BaseExamplesIterable):
         return sum(ex_iterable.n_shards for ex_iterable in self.ex_iterables)
 
     def shuffle_data_sources(self, generator: np.random.Generator) -> "ChainDataset":
-        ex_iterables = [ex_iterable.shuffle_data_sources(generator) for ex_iterable in self.ex_iterables]
-        return ChainDataset(ex_iterables, self.infinite, self.shuffle_every_cycle, self.generator)
+        self.generator.shuffle(self.ex_iterables)
+        return ChainDataset(self.ex_iterables, self.infinite, self.shuffle_every_cycle, self.generator)
 
     def __init__(self, ex_iterables: List[_BaseExamplesIterable], infinite: bool, shuffle_every_cycle: bool,
                  generator: np.random.Generator) -> None:

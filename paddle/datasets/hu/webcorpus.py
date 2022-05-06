@@ -163,6 +163,7 @@ def load_iterable_dataset(path: str,
         paths = download(path, regex=regex)
     else:
         paths = os.listdir(path)
+        paths = [os.path.join(path, p)for p in paths]
 
     files = [ExamplesIterable(_generate_lines, {'file': f}) for f in paths]
     iterator = WebcorpusIterableDataset(files, infinite, shuffle_every_cycle, seed)
